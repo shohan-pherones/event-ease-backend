@@ -15,6 +15,13 @@ router.get(
   UserControllers.getAnUser
 );
 
+router.put(
+  "/:userId",
+  auth(USER_ROLE.user, USER_ROLE.admin),
+  validate(UserValidations.updateUserSchema),
+  UserControllers.updateAnUser
+);
+
 router.post(
   "/auth/register",
   validate(UserValidations.registerSchema),

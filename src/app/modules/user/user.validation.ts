@@ -43,8 +43,15 @@ const loginSchema = z.object({
 
 const refreshTokenSchema = z.string();
 
+const updateUserSchema = z
+  .object({
+    name: z.string().min(1, { message: "Name is required." }).optional(),
+  })
+  .partial();
+
 export const UserValidations = {
   registerSchema,
   loginSchema,
   refreshTokenSchema,
+  updateUserSchema,
 };
