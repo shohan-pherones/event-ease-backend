@@ -41,7 +41,10 @@ const loginSchema = z.object({
     }),
 });
 
+const refreshTokenSchema = z.string();
+
 export const UserValidations = {
   registerSchema,
   loginSchema,
+  refreshTokenSchema,
 };

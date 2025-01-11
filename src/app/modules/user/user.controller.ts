@@ -38,7 +38,24 @@ const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const refreshToken = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const refreshToken = req.headers["x-refresh-token"] as string;
+    const { accessToken, user } = await UserServices.refreshToken(refreshToken);
+
+    res.status(StatusCodes.OK).json({
+      message: "Access token retrieved successfully",
+      accessToken,
+      refreshToken,
+      user,
+    });
+  } catch (error: any) {
+    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  }
+};
+
 export const UserControllers = {
   register,
   login,
+  refreshToken,
 };

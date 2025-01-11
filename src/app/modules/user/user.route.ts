@@ -17,4 +17,10 @@ router.post(
   UserControllers.login
 );
 
+router.get(
+  "/auth/token/refresh",
+  validate(UserValidations.refreshTokenSchema),
+  UserControllers.refreshToken
+);
+
 export default router;
