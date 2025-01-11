@@ -14,4 +14,11 @@ router.post(
   EventControllers.createEvent
 );
 
+router.put(
+  "/:eventId",
+  auth(USER_ROLE.user, USER_ROLE.admin),
+  validate(EventValidations.updateEventSchema),
+  EventControllers.updateEvent
+);
+
 export default router;
