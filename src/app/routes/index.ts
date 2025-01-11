@@ -1,4 +1,5 @@
 import express, { Router } from "express";
+import EventRegistrationRoutes from "../modules/event-registration/event-registration.route";
 import EventRoutes from "../modules/event/event.route";
 import UserRoutes from "../modules/user/user.route";
 
@@ -12,6 +13,10 @@ const moduleRoutes = [
   {
     path: "/events",
     route: EventRoutes,
+  },
+  {
+    path: "/event-registrations",
+    route: EventRegistrationRoutes,
   },
 ];
 

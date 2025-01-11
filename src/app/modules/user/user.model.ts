@@ -13,6 +13,12 @@ const UserSchema: Schema = new Schema<IUser>(
         ref: "Event",
       },
     ],
+    registeredEvents: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Event",
+      },
+    ],
   },
   {
     timestamps: true,

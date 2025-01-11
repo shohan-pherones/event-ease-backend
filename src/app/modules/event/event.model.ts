@@ -7,6 +7,12 @@ const EventSchema: Schema = new Schema<IEvent>(
     date: { type: Date, required: true },
     location: { type: String, required: true },
     maxAttendees: { type: Number, required: true },
+    registeredAttendees: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
