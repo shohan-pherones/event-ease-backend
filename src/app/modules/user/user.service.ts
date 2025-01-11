@@ -1,6 +1,8 @@
 import bcrypt from "bcrypt";
 import { StatusCodes } from "http-status-codes";
+import config from "../../config/env";
 import AppError from "../../errors/app.error";
+import { createToken } from "../../utils/jwt.util";
 import { IUser } from "./user.interface";
 import userModel from "./user.model";
 
@@ -23,7 +25,24 @@ const register = async (userData: IUser) => {
 
   await user.save();
 
-  return user;
+  const jwtPayload = {
+    userId: user.id,
+    role: user.role,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.jwt_access_expires_in as string
+  );
+
+  const refreshToken = createToken(
+    jwtPayload,
+    config.jwt_refresh_secret as string,
+    config.jwt_refresh_expires_in as string
+  );
+
+  return { accessToken, refreshToken, user };
 };
 
 export const UserServices = {
