@@ -14,6 +14,18 @@ router.post(
   EventControllers.createEvent
 );
 
+router.get(
+  "/",
+  auth(USER_ROLE.user, USER_ROLE.admin),
+  EventControllers.getEventsByUserId
+);
+
+router.get(
+  "/:eventId",
+  auth(USER_ROLE.user, USER_ROLE.admin),
+  EventControllers.getEventById
+);
+
 router.put(
   "/:eventId",
   auth(USER_ROLE.user, USER_ROLE.admin),

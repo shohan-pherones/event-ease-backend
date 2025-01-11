@@ -78,8 +78,27 @@ const deleteEvent = async (eventId: string): Promise<void> => {
   }
 };
 
+const getEventById = async (eventId: string): Promise<IEvent> => {
+  const event = await eventModel.findById(eventId).populate("createdBy");
+
+  if (!event) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Event not found");
+  }
+
+  return event;
+};
+
+const getEventsByUserId = async (userId: string): Promise<IEvent[]> => {
+  const events = await eventModel
+    .find({ createdBy: userId })
+    .populate("createdBy");
+  return events;
+};
+
 export const EventServices = {
   createEvent,
   updateEvent,
   deleteEvent,
+  getEventById,
+  getEventsByUserId,
 };
