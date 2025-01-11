@@ -54,8 +54,37 @@ const refreshToken = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const getAllUsers = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const users = await UserServices.getAllUsers();
+
+    res.status(StatusCodes.OK).json({
+      message: "Users retrieved successfully",
+      users,
+    });
+  } catch (error: any) {
+    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  }
+};
+
+const getAnUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { userId } = req.params;
+    const user = await UserServices.getAnUser(userId);
+
+    res.status(StatusCodes.OK).json({
+      message: "User retrieved successfully",
+      user,
+    });
+  } catch (error: any) {
+    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  }
+};
+
 export const UserControllers = {
   register,
   login,
   refreshToken,
+  getAllUsers,
+  getAnUser,
 };
