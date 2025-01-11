@@ -19,6 +19,26 @@ const register = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const login = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, password } = req.body;
+    const { accessToken, refreshToken, user } = await UserServices.login(
+      email,
+      password
+    );
+
+    res.status(StatusCodes.OK).json({
+      message: "User logged in successfully",
+      accessToken,
+      refreshToken,
+      user,
+    });
+  } catch (error: any) {
+    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  }
+};
+
 export const UserControllers = {
   register,
+  login,
 };
