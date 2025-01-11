@@ -22,6 +22,13 @@ router.put(
   UserControllers.updateAnUser
 );
 
+router.put(
+  "/change-role/:userId",
+  auth(USER_ROLE.admin),
+  validate(UserValidations.updateUserRoleSchema),
+  UserControllers.changeUserRole
+);
+
 router.post(
   "/auth/register",
   validate(UserValidations.registerSchema),

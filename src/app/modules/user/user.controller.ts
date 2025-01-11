@@ -110,6 +110,21 @@ const updateAnUser = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const changeUserRole = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+    const user = await UserServices.changeUserRole(userId, role);
+
+    res.status(StatusCodes.OK).json({
+      message: "User role updated successfully",
+      user,
+    });
+  } catch (error: any) {
+    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  }
+};
+
 export const UserControllers = {
   register,
   login,
@@ -117,4 +132,5 @@ export const UserControllers = {
   getAllUsers,
   getAnUser,
   updateAnUser,
+  changeUserRole,
 };
