@@ -19,7 +19,6 @@ const createEvent = async (req: Request, res: Response): Promise<void> => {
 const updateEvent = async (req: Request, res: Response): Promise<void> => {
   try {
     const { eventId } = req.params;
-
     const event = await EventServices.updateEvent(eventId, req.body);
 
     res.status(StatusCodes.OK).json({
@@ -31,7 +30,21 @@ const updateEvent = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const deleteEvent = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { eventId } = req.params;
+    await EventServices.deleteEvent(eventId);
+
+    res.status(StatusCodes.OK).json({
+      message: "Event deleted successfully",
+    });
+  } catch (error: any) {
+    res.status(StatusCodes.NOT_FOUND).json({ message: error.message });
+  }
+};
+
 export const EventControllers = {
   createEvent,
   updateEvent,
+  deleteEvent,
 };

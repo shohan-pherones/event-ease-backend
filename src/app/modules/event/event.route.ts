@@ -21,4 +21,10 @@ router.put(
   EventControllers.updateEvent
 );
 
+router.delete(
+  "/:eventId",
+  auth(USER_ROLE.user, USER_ROLE.admin),
+  EventControllers.deleteEvent
+);
+
 export default router;

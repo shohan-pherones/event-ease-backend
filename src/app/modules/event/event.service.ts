@@ -70,7 +70,16 @@ const updateEvent = async (
   }
 };
 
+const deleteEvent = async (eventId: string): Promise<void> => {
+  const event = await eventModel.findByIdAndDelete(eventId);
+
+  if (!event) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Event not found");
+  }
+};
+
 export const EventServices = {
   createEvent,
   updateEvent,
+  deleteEvent,
 };
