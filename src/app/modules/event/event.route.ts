@@ -20,6 +20,8 @@ router.get(
   EventControllers.getEventsByUserId
 );
 
+router.get("/public", EventControllers.getEvents);
+
 router.get("/:eventId", EventControllers.getEventById);
 
 router.put(

@@ -74,10 +74,24 @@ const getEventsByUserId = async (
   }
 };
 
+const getEvents = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const events = await EventServices.getEvents();
+
+    res.status(StatusCodes.OK).json({
+      message: "Events retrieved successfully",
+      events,
+    });
+  } catch (error: any) {
+    res.status(StatusCodes.NOT_FOUND).json({ message: error.message });
+  }
+};
+
 export const EventControllers = {
   createEvent,
   updateEvent,
   deleteEvent,
   getEventById,
   getEventsByUserId,
+  getEvents,
 };

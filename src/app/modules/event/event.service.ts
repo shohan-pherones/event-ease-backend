@@ -103,10 +103,16 @@ const getEventsByUserId = async (userId: string): Promise<IEvent[]> => {
   return events;
 };
 
+const getEvents = async (): Promise<IEvent[]> => {
+  const events = await eventModel.find().populate("createdBy");
+  return events;
+};
+
 export const EventServices = {
   createEvent,
   updateEvent,
   deleteEvent,
   getEventById,
   getEventsByUserId,
+  getEvents,
 };
