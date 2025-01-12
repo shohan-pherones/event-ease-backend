@@ -77,6 +77,63 @@ const createRegistrationForEvent = async (
   }
 };
 
+const revokeRegistrationForEvent = async (
+  eventId: string,
+  userId: ObjectId
+) => {
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const event = await eventModel.findById(eventId).session(session);
+    if (!event) {
+      throw new AppError(StatusCodes.NOT_FOUND, "Event not found");
+    }
+
+    // check if the event date has already passed
+    if (new Date(event.date) < new Date()) {
+      throw new AppError(
+        StatusCodes.BAD_REQUEST,
+        "Event date has already passed"
+      );
+    }
+
+    // check if the user is registered
+    if (!event.registeredAttendees.includes(userId)) {
+      throw new AppError(
+        StatusCodes.BAD_REQUEST,
+        "You are not registered for this event"
+      );
+    }
+
+    // remove the user from the event's registeredAttendees
+    event.registeredAttendees = event.registeredAttendees.filter(
+      (attendee) => attendee != userId
+    );
+    await event.save({ session });
+
+    // update the user's registeredEvents
+    const user = await userModel.findById(userId).session(session);
+    if (!user) {
+      throw new AppError(StatusCodes.NOT_FOUND, "User not found");
+    }
+
+    user.registeredEvents = user.registeredEvents.filter(
+      (ev) => ev != event._id
+    );
+    await user.save({ session });
+
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};
+
 export const EventRegistrationServices = {
   createRegistrationForEvent,
+  revokeRegistrationForEvent,
 };

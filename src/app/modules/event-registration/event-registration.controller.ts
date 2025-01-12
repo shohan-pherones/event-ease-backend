@@ -24,6 +24,25 @@ const createRegistrationForEvent = async (
   }
 };
 
+const revokeRegistrationForEvent = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { userId } = req.user;
+    const { eventId } = req.params;
+
+    await EventRegistrationServices.revokeRegistrationForEvent(eventId, userId);
+
+    res.status(StatusCodes.CREATED).json({
+      message: "Event registration revoked successfully",
+    });
+  } catch (error: any) {
+    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  }
+};
+
 export const EventRegistrationControllers = {
   createRegistrationForEvent,
+  revokeRegistrationForEvent,
 };

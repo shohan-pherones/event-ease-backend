@@ -11,4 +11,10 @@ router.post(
   EventRegistrationControllers.createRegistrationForEvent
 );
 
+router.put(
+  "/revoke/:eventId",
+  auth(USER_ROLE.user, USER_ROLE.admin),
+  EventRegistrationControllers.revokeRegistrationForEvent
+);
+
 export default router;
