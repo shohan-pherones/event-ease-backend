@@ -130,7 +130,7 @@ const getAllUsers = async (): Promise<IUser[]> => {
 };
 
 const getAnUser = async (userId: string): Promise<IUser> => {
-  const user = await userModel.findById(userId);
+  const user = await userModel.findById(userId).populate("registeredEvents");
 
   if (!user) {
     throw new AppError(StatusCodes.NOT_FOUND, "User not found");

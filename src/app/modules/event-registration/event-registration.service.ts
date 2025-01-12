@@ -109,7 +109,7 @@ const revokeRegistrationForEvent = async (
 
     // remove the user from the event's registeredAttendees
     event.registeredAttendees = event.registeredAttendees.filter(
-      (attendee) => attendee != userId
+      (attendee) => attendee.toString() !== userId.toString()
     );
     await event.save({ session });
 
@@ -120,7 +120,7 @@ const revokeRegistrationForEvent = async (
     }
 
     user.registeredEvents = user.registeredEvents.filter(
-      (ev) => ev != event._id
+      (ev) => ev.toString() !== event._id.toString()
     );
     await user.save({ session });
 
