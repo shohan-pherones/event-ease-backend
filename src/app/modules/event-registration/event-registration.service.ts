@@ -20,6 +20,14 @@ const createRegistrationForEvent = async (
       throw new AppError(StatusCodes.NOT_FOUND, "Event not found");
     }
 
+    // check if the event date has already passed
+    if (new Date(event.date) < new Date()) {
+      throw new AppError(
+        StatusCodes.BAD_REQUEST,
+        "Event date has already passed"
+      );
+    }
+
     // check if the user is already registered
     if (event.registeredAttendees.includes(userId)) {
       throw new AppError(

@@ -20,11 +20,7 @@ router.get(
   EventControllers.getEventsByUserId
 );
 
-router.get(
-  "/:eventId",
-  auth(USER_ROLE.user, USER_ROLE.admin),
-  EventControllers.getEventById
-);
+router.get("/:eventId", EventControllers.getEventById);
 
 router.put(
   "/:eventId",
