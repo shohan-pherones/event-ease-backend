@@ -12,6 +12,14 @@ const createEvent = async (eventData: IEvent): Promise<IEvent> => {
 
     const { name, date, location, maxAttendees, createdBy } = eventData;
 
+    // check if the event date is in the past
+    if (new Date(date) < new Date()) {
+      throw new AppError(
+        StatusCodes.BAD_REQUEST,
+        "Event date cannot be in the past"
+      );
+    }
+
     const event = await eventModel.create(
       [
         {
