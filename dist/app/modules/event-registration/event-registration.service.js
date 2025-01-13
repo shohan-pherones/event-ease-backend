@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EventRegistrationServices = void 0;
 const http_status_codes_1 = require("http-status-codes");
 const mongoose_1 = __importDefault(require("mongoose"));
+const app_1 = __importDefault(require("../../../app"));
 const app_error_1 = __importDefault(require("../../errors/app.error"));
 const event_model_1 = __importDefault(require("../event/event.model"));
 const user_model_1 = __importDefault(require("../user/user.model"));
@@ -23,6 +24,7 @@ const createRegistrationForEvent = (eventId, userId) => __awaiter(void 0, void 0
     const session = yield mongoose_1.default.startSession();
     try {
         session.startTransaction();
+        const io = app_1.default.get("io");
         const event = yield event_model_1.default.findById(eventId).session(session);
         if (!event) {
             throw new app_error_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Event not found");
@@ -56,6 +58,20 @@ const createRegistrationForEvent = (eventId, userId) => __awaiter(void 0, void 0
             },
         ], { session });
         yield session.commitTransaction();
+        // emit a notification for the new registration
+        io.emit("event:registration", {
+            eventId: event._id,
+            eventCreator: event.createdBy,
+            message: `A new attendee registered for the event: ${event.name}`,
+        });
+        // emit a notification to the event creator
+        if (event.registeredAttendees.length === event.maxAttendees) {
+            io.emit("event:max-attendees-reached", {
+                eventId: event._id,
+                eventCreator: event.createdBy,
+                message: `The event ${event.name} has reached the maximum number of attendees.`,
+            });
+        }
         return (yield registeredEvent[0].populate(["event", "attendee"])).toObject();
     }
     catch (error) {

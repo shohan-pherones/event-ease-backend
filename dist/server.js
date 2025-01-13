@@ -12,10 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const socket_io_1 = require("socket.io");
 const app_1 = __importDefault(require("./app"));
 const db_1 = __importDefault(require("./app/config/db"));
 const env_1 = __importDefault(require("./app/config/env"));
 let server;
+let io;
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -23,6 +25,19 @@ function main() {
             server = app_1.default.listen(env_1.default.port, () => {
                 console.log(`🚀 Server is listening on port: ${env_1.default.port}`);
             });
+            io = new socket_io_1.Server(server, {
+                cors: {
+                    origin: env_1.default.frontend_url,
+                    methods: ["GET", "POST"],
+                },
+            });
+            io.on("connection", (socket) => {
+                console.log("🔥 A client connected:", socket.id);
+                socket.on("disconnect", () => {
+                    console.log("💔 A client disconnected:", socket.id);
+                });
+            });
+            app_1.default.set("io", io);
         }
         catch (error) {
             console.error("❌ Error starting server:", error);

@@ -18,6 +18,7 @@ const mongoose_1 = require("mongoose");
 const app_error_1 = __importDefault(require("../../errors/app.error"));
 const event_model_1 = __importDefault(require("./event.model"));
 const user_model_1 = __importDefault(require("../user/user.model"));
+const app_1 = __importDefault(require("../../../app"));
 const createEvent = (eventData) => __awaiter(void 0, void 0, void 0, function* () {
     const session = yield (0, mongoose_1.startSession)();
     try {
@@ -55,6 +56,7 @@ const updateEvent = (eventId, updateData) => __awaiter(void 0, void 0, void 0, f
     const session = yield (0, mongoose_1.startSession)();
     try {
         session.startTransaction();
+        const io = app_1.default.get("io");
         const { name, date, location, maxAttendees } = updateData;
         // check if the event date is in the past
         if (new Date(date) < new Date()) {
@@ -69,6 +71,12 @@ const updateEvent = (eventId, updateData) => __awaiter(void 0, void 0, void 0, f
             throw new app_error_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Event not found");
         }
         yield session.commitTransaction();
+        // emit a notification for the event update
+        io.emit("event:update", {
+            eventId: updatedEvent._id,
+            attendees: updatedEvent.registeredAttendees,
+            message: `The event ${updatedEvent.name} has been updated.`,
+        });
         return updatedEvent;
     }
     catch (error) {

@@ -1,9 +1,11 @@
 import { Server } from "http";
+import { Server as SocketIOServer } from "socket.io";
 import app from "./app";
 import connectDB from "./app/config/db";
 import env from "./app/config/env";
 
 let server: Server;
+let io: SocketIOServer;
 
 async function main() {
   try {
@@ -12,6 +14,23 @@ async function main() {
     server = app.listen(env.port, () => {
       console.log(`🚀 Server is listening on port: ${env.port}`);
     });
+
+    io = new SocketIOServer(server, {
+      cors: {
+        origin: env.frontend_url,
+        methods: ["GET", "POST"],
+      },
+    });
+
+    io.on("connection", (socket) => {
+      console.log("🔥 A client connected:", socket.id);
+
+      socket.on("disconnect", () => {
+        console.log("💔 A client disconnected:", socket.id);
+      });
+    });
+
+    app.set("io", io);
   } catch (error) {
     console.error("❌ Error starting server:", error);
     process.exit(1);

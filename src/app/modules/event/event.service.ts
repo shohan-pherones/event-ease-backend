@@ -4,6 +4,7 @@ import AppError from "../../errors/app.error";
 import { IEvent } from "./event.interface";
 import eventModel from "./event.model";
 import userModel from "../user/user.model";
+import app from "../../../app";
 
 const createEvent = async (eventData: IEvent): Promise<IEvent> => {
   const session = await startSession();
@@ -66,6 +67,8 @@ const updateEvent = async (
   try {
     session.startTransaction();
 
+    const io = app.get("io");
+
     const { name, date, location, maxAttendees } = updateData;
 
     // check if the event date is in the past
@@ -91,6 +94,14 @@ const updateEvent = async (
     }
 
     await session.commitTransaction();
+
+    // emit a notification for the event update
+    io.emit("event:update", {
+      eventId: updatedEvent._id,
+      attendees: updatedEvent.registeredAttendees,
+      message: `The event ${updatedEvent.name} has been updated.`,
+    });
+
     return updatedEvent;
   } catch (error) {
     await session.abortTransaction();

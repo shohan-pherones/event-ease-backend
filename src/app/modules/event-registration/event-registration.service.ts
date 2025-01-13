@@ -1,5 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import mongoose, { ObjectId } from "mongoose";
+import app from "../../../app";
 import AppError from "../../errors/app.error";
 import eventModel from "../event/event.model";
 import userModel from "../user/user.model";
@@ -14,6 +15,8 @@ const createRegistrationForEvent = async (
 
   try {
     session.startTransaction();
+
+    const io = app.get("io");
 
     const event = await eventModel.findById(eventId).session(session);
     if (!event) {
@@ -65,6 +68,22 @@ const createRegistrationForEvent = async (
     );
 
     await session.commitTransaction();
+
+    // emit a notification for the new registration
+    io.emit("event:registration", {
+      eventId: event._id,
+      eventCreator: event.createdBy,
+      message: `A new attendee registered for the event: ${event.name}`,
+    });
+
+    // emit a notification to the event creator
+    if (event.registeredAttendees.length === event.maxAttendees) {
+      io.emit("event:max-attendees-reached", {
+        eventId: event._id,
+        eventCreator: event.createdBy,
+        message: `The event ${event.name} has reached the maximum number of attendees.`,
+      });
+    }
 
     return (
       await registeredEvent[0].populate(["event", "attendee"])
