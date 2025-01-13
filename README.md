@@ -94,6 +94,8 @@ To run this project, add the following environment variables to their respective
 
 `NEXT_PUBLIC_API_BASE_URL`
 
+`NEXT_PUBLIC_BACKEND_URL`
+
 ## Deployments
 
 - **Front-End**: <https://event-ease-frontend-zeta.vercel.app>
