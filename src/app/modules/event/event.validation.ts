@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const createEventSchema = z.object({
+const createEventSchema = z.object({
   name: z.string().min(1, { message: "Event name is required." }),
   date: z
     .string()
@@ -23,7 +23,7 @@ export const createEventSchema = z.object({
     }),
 });
 
-export const updateEventSchema = z.object({
+const updateEventSchema = z.object({
   name: z.string().min(1, { message: "Event name is required." }),
   date: z
     .string()

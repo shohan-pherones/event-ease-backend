@@ -54,6 +54,14 @@ const updateEvent = async (
 
     const { name, date, location, maxAttendees } = updateData;
 
+    // check if the event date is in the past
+    if (new Date(date!) < new Date()) {
+      throw new AppError(
+        StatusCodes.BAD_REQUEST,
+        "Event date cannot be in the past"
+      );
+    }
+
     const updatedEvent = await eventModel
       .findByIdAndUpdate(
         eventId,
@@ -87,7 +95,9 @@ const deleteEvent = async (eventId: string): Promise<void> => {
 };
 
 const getEventById = async (eventId: string): Promise<IEvent> => {
-  const event = await eventModel.findById(eventId).populate("createdBy");
+  const event = await eventModel
+    .findById(eventId)
+    .populate(["createdBy", "registeredAttendees"]);
 
   if (!event) {
     throw new AppError(StatusCodes.NOT_FOUND, "Event not found");
