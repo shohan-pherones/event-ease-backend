@@ -54,6 +54,14 @@ const updateEvent = async (
 
     const { name, date, location, maxAttendees } = updateData;
 
+    // check if the event date is in the past
+    if (new Date(date!) < new Date()) {
+      throw new AppError(
+        StatusCodes.BAD_REQUEST,
+        "Event date cannot be in the past"
+      );
+    }
+
     const updatedEvent = await eventModel
       .findByIdAndUpdate(
         eventId,
