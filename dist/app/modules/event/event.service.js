@@ -17,6 +17,7 @@ const http_status_codes_1 = require("http-status-codes");
 const mongoose_1 = require("mongoose");
 const app_error_1 = __importDefault(require("../../errors/app.error"));
 const event_model_1 = __importDefault(require("./event.model"));
+const user_model_1 = __importDefault(require("../user/user.model"));
 const createEvent = (eventData) => __awaiter(void 0, void 0, void 0, function* () {
     const session = yield (0, mongoose_1.startSession)();
     try {
@@ -35,6 +36,10 @@ const createEvent = (eventData) => __awaiter(void 0, void 0, void 0, function* (
                 createdBy,
             },
         ], { session });
+        const userUpdate = yield user_model_1.default.findByIdAndUpdate(createdBy, { $push: { events: event[0]._id } }, { new: true, session });
+        if (!userUpdate) {
+            throw new app_error_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Failed to update user with event ID");
+        }
         yield session.commitTransaction();
         return (yield event[0].populate("createdBy")).toObject();
     }
@@ -75,9 +80,25 @@ const updateEvent = (eventId, updateData) => __awaiter(void 0, void 0, void 0, f
     }
 });
 const deleteEvent = (eventId) => __awaiter(void 0, void 0, void 0, function* () {
-    const event = yield event_model_1.default.findByIdAndDelete(eventId);
-    if (!event) {
-        throw new app_error_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Event not found");
+    const session = yield (0, mongoose_1.startSession)();
+    try {
+        session.startTransaction();
+        const event = yield event_model_1.default.findByIdAndDelete(eventId, { session });
+        if (!event) {
+            throw new app_error_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "Event not found");
+        }
+        const userUpdate = yield user_model_1.default.findByIdAndUpdate(event.createdBy, { $pull: { events: eventId } }, { new: true, session });
+        if (!userUpdate) {
+            throw new app_error_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Failed to update user events");
+        }
+        yield session.commitTransaction();
+    }
+    catch (error) {
+        yield session.abortTransaction();
+        throw error;
+    }
+    finally {
+        session.endSession();
     }
 });
 const getEventById = (eventId) => __awaiter(void 0, void 0, void 0, function* () {

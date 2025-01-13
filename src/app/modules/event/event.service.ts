@@ -3,6 +3,7 @@ import { startSession } from "mongoose";
 import AppError from "../../errors/app.error";
 import { IEvent } from "./event.interface";
 import eventModel from "./event.model";
+import userModel from "../user/user.model";
 
 const createEvent = async (eventData: IEvent): Promise<IEvent> => {
   const session = await startSession();
@@ -32,6 +33,19 @@ const createEvent = async (eventData: IEvent): Promise<IEvent> => {
       ],
       { session }
     );
+
+    const userUpdate = await userModel.findByIdAndUpdate(
+      createdBy,
+      { $push: { events: event[0]._id } },
+      { new: true, session }
+    );
+
+    if (!userUpdate) {
+      throw new AppError(
+        StatusCodes.BAD_REQUEST,
+        "Failed to update user with event ID"
+      );
+    }
 
     await session.commitTransaction();
     return (await event[0].populate("createdBy")).toObject();
@@ -87,10 +101,36 @@ const updateEvent = async (
 };
 
 const deleteEvent = async (eventId: string): Promise<void> => {
-  const event = await eventModel.findByIdAndDelete(eventId);
+  const session = await startSession();
 
-  if (!event) {
-    throw new AppError(StatusCodes.NOT_FOUND, "Event not found");
+  try {
+    session.startTransaction();
+
+    const event = await eventModel.findByIdAndDelete(eventId, { session });
+
+    if (!event) {
+      throw new AppError(StatusCodes.NOT_FOUND, "Event not found");
+    }
+
+    const userUpdate = await userModel.findByIdAndUpdate(
+      event.createdBy,
+      { $pull: { events: eventId } },
+      { new: true, session }
+    );
+
+    if (!userUpdate) {
+      throw new AppError(
+        StatusCodes.BAD_REQUEST,
+        "Failed to update user events"
+      );
+    }
+
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
 };
 
