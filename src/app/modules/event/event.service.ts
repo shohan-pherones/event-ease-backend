@@ -95,7 +95,9 @@ const deleteEvent = async (eventId: string): Promise<void> => {
 };
 
 const getEventById = async (eventId: string): Promise<IEvent> => {
-  const event = await eventModel.findById(eventId).populate("createdBy");
+  const event = await eventModel
+    .findById(eventId)
+    .populate(["createdBy", "registeredAttendees"]);
 
   if (!event) {
     throw new AppError(StatusCodes.NOT_FOUND, "Event not found");
